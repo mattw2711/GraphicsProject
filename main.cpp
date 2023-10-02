@@ -5,19 +5,28 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include "Shader.h"
+#include "VertexBuffer.h"
 
-static std::string parseShader(const std::string& path) {
-    std::ifstream file(path);
-
-    std::string fileContents;
-    std::string line;
-
-    while (std::getline(file, line)) {
-        fileContents += line + '\n';
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+  std::cout << "Pressing Key" << std::endl;
+    if (action == GLFW_PRESS) {
+        switch (key) {
+            case GLFW_KEY_LEFT:
+                glClearColor(1.0,  0.0, 0.0, 1.0);
+                break;
+            case GLFW_KEY_RIGHT:
+                glClearColor(0.0,  1.0, 0.0, 1.0);
+                break;
+            case GLFW_KEY_UP:
+                glClearColor(1.0,  0.0, 1.0, 1.0);
+                break;
+            case GLFW_KEY_DOWN:
+                glClearColor(0.0,  1.0, 1.0, 1.0);
+                break;
+        }
     }
-    return fileContents;
 }
-
 
 int main() {
   // start GL context and O/S window using the GLFW helper library
@@ -38,6 +47,7 @@ int main() {
     return 1;
   }
   glfwMakeContextCurrent(window);
+  glfwSetKeyCallback(window, keyCallback);
                                   
   // start GLEW extension handler
   glewExperimental = GL_TRUE;
@@ -53,12 +63,14 @@ int main() {
   glEnable(GL_DEPTH_TEST); // enable depth-testing
   glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
+  //Top
   glm::mat3x3 points1 = {
    0.5f,  0.5f,  0.0f,
    -0.5f, 0.5f,  0.0f,
    0.5f,  -0.5f,  0.0f
   };
 
+  //Bottom
   glm::mat3x3 points2 = {
    -0.5f,  0.5f,  0.0f,
    -0.5f, -0.5f,  0.0f,
@@ -71,90 +83,49 @@ int main() {
   0.0f, 0.0f,  1.0f
   };
 
-  GLuint points_vbo1;
-  glGenBuffers(1, &points_vbo1);
-  glBindBuffer(GL_ARRAY_BUFFER, points_vbo1);
-  glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), &points1, GL_STATIC_DRAW);
+  VertexBuffer points_vbo1(9 * sizeof(float), &points1);
+  VertexBuffer points_vbo2(9 * sizeof(float), &points2);
+  VertexBuffer colours_vbo1(9 * sizeof(float), &colours);
 
-  GLuint points_vbo2;
-  glGenBuffers(1, &points_vbo2);
-  glBindBuffer(GL_ARRAY_BUFFER, points_vbo2);
-  glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), &points2, GL_STATIC_DRAW);
-
-  GLuint colours_vbo1 = 0;
-  glGenBuffers(1, &colours_vbo1);
-  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo1);
-  glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), &colours, GL_STATIC_DRAW);
-
+  //TopColor
   GLuint vao;
   glGenVertexArrays(1, &vao);
   glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, points_vbo1);
+  points_vbo1.Bind();
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo1);
+  colours_vbo1.Bind();
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
   glEnableVertexAttribArray(0);
   glEnableVertexAttribArray(1);
 
+  
+  //BottomYellow
   GLuint vao1;
   glGenVertexArrays(1, &vao1);
   glBindVertexArray(vao1);
-  glBindBuffer(GL_ARRAY_BUFFER, points_vbo2);
+  points_vbo2.Bind();
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-  glBindBuffer(GL_ARRAY_BUFFER, colours_vbo1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
   glEnableVertexAttribArray(0);
-  glEnableVertexAttribArray(1);
 
-  std::string src = parseShader("res/shaders/vertex.shader");
-  const char *vertex_shader = src.c_str();
-  
-  GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vs, 1, &vertex_shader, NULL);
-  glCompileShader(vs);
+  Shader colorShader("res/shaders/vertex.shader", "res/shaders/fragment.shader");
+  Shader yellowShader("res/shaders/vertex.shader", "res/shaders/fragmentY.shader");
+  Shader blueShader("res/shaders/vertex.shader", "res/shaders/fragmentB.shader");
 
-  src = parseShader("res/shaders/fragment.shader");
-  const char *fragment_shader = src.c_str();
+  Shader toggle = yellowShader;
 
-  GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fs, 1, &fragment_shader, NULL);
-  glCompileShader(fs);
-
-  src = parseShader("res/shaders/fragmentY.shader");
-  const char *fragmentY_shader = src.c_str();
-
-  GLuint fsY = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fsY, 1, &fragmentY_shader, NULL);
-  glCompileShader(fsY);
-
-  GLuint shader_programme = glCreateProgram();
-  glAttachShader(shader_programme, fs);
-  glAttachShader(shader_programme, vs); 
-  glBindAttribLocation(shader_programme, 0, "vertex_position");
-  glBindAttribLocation(shader_programme, 1, "vertex_colour");
-  glLinkProgram(shader_programme);
-
-  GLuint shader_programme1 = glCreateProgram();
-  glAttachShader(shader_programme1, fsY);
-  glAttachShader(shader_programme1, vs); 
-  glBindAttribLocation(shader_programme1, 0, "vertex_position");
-  glBindAttribLocation(shader_programme1, 1, "vertex_colourYellow");
-  glLinkProgram(shader_programme1);
-  
   while(!glfwWindowShouldClose(window)) {
     // wipe the drawing surface clear
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glUseProgram(shader_programme);
-    glBindVertexArray(vao);
-    // draw points 0-3 from the currently bound VAO with current in-use shader
+    toggle.use();
+    glBindVertexArray(vao1);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    glUseProgram(shader_programme1);
-    glBindVertexArray(vao1);
-    // draw points 0-3 from the currently bound VAO with current in-use shader
+    colorShader.use();
+    glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
     // update other events like input handling 
     glfwPollEvents();
     // put the stuff we've been drawing onto the display
