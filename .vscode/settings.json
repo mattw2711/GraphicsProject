@@ -68,5 +68,5 @@
         "algorithm": "cpp",
         "charconv": "cpp"
     },
-    "cmake.sourceDirectory": "/Users/matt/Documents/College/SS/ComputerGraphics/Labs/Lab/assimp/assimp"
+    "cmake.sourceDirectory": "/Users/matt/Documents/College/SS/ComputerGraphics/Labs/Lab/dependencies/include/glm"
 }
