@@ -57,7 +57,7 @@ public:
         this->textures = textures;
 
         // now that we have all the required data, set the vertex buffers and its attribute pointers.
-        setupMesh();
+        this->setupMesh();
     }
 
     // render the mesh
@@ -68,7 +68,7 @@ public:
         unsigned int specularNr = 1;
         unsigned int normalNr   = 1;
         unsigned int heightNr   = 1;
-        for(unsigned int i = 0; i < textures.size(); i++)
+        for(unsigned int i = 0; i < this->textures.size(); i++)
         {
             glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
             // retrieve texture number (the N in diffuse_textureN)
@@ -94,8 +94,12 @@ public:
         glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
-        // always good practice to set everything back to defaults once configured.
-        glActiveTexture(GL_TEXTURE0);
+        // Always good practice to set everything back to defaults once configured.
+        for ( GLuint i = 0; i < this->textures.size( ); i++ )
+        {
+            glActiveTexture( GL_TEXTURE0 + i );
+            glBindTexture( GL_TEXTURE_2D, 0 );
+        }
     }
 
 private:
