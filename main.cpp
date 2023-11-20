@@ -82,6 +82,7 @@ int main()
     Model bevModel("res/bev/Scaniverse_2023_11_02_124541.obj");
     Model laModel("res/leah&stas/Scaniverse_2023_11_02_124805.obj");
     Model sheenaModel("res/sheena/Scaniverse_2023_11_02_124634.obj");
+    Model cat("res/cat/12221_Cat_v1_l3.obj");
 
     
     // draw in wireframe
@@ -115,42 +116,30 @@ int main()
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
+        ourShader.setVec3("material.ambient", glm::vec3(1.0f, 1.0f, 1.0f));
+        ourShader.setVec3("material.diffuse", glm::vec3(0.3f, 0.3f, 0.3f));
+        ourShader.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+        ourShader.setFloat("material.shininess", 10.0f);
+
+        // Set light properties (adjust values accordingly)
+        ourShader.setVec3("light.position", glm::vec3(1.0f, 10.0f, 1.0f));
+        ourShader.setVec3("light.ambient", glm::vec3(0.2f, 0.2f, 0.2f));
+        ourShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+        ourShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+
         //// render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 1.0f, 1.0f, 1.0f ) );	// it's a bit too big for our scene, so scale it down
+        model = glm::scale( model, glm::vec3( 0.01f, 0.01f, 0.01f ) );	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        buggleModel.Draw(ourShader);
+        alienModel.Draw(ourShader);
 
-        // render the loaded model
-        model = glm::translate(model, glm::vec3(1.0f, 0.0f, 1.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 1.0f, 1.0f, 1.0f ) );	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        emmaModel.Draw(ourShader);
-
-        // render the loaded model
-        model = glm::translate(model, glm::vec3(1.0f, 1.0f, 1.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 1.0f, 1.0f, 1.0f ) );	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        bevModel.Draw(ourShader);
-
-        // render the loaded model
-        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 1.0f, 1.0f, 1.0f ) );	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        laModel.Draw(ourShader);
-
-        // render the loaded model
-        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, 1.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 1.0f, 1.0f, 1.0f ) );	// it's a bit too big for our scene, so scale it down
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(3.0f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
+        model = glm::scale( model, glm::vec3( 1.5f, 1.5f, 1.5f ) );	// it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
         sheenaModel.Draw(ourShader);
 
-        // render the loaded model
-        model = glm::translate(model, glm::vec3(1.0f, 0.0f, -1.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 0.02f, 0.02f, 0.02f ) );	// it's a bit too big for our scene, so scale it down
-        ourShader.setMat4("model", model);
-        alienModel.Draw(ourShader);
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
