@@ -16,8 +16,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 1200;
 
 // camera
 Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
@@ -26,7 +26,7 @@ float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 
 // timing
-float deltaTime = 1.0f;
+float deltaTime = 10.0f;
 float lastFrame = 0.0f;
 
 int main()
@@ -76,14 +76,8 @@ int main()
 
     // load models
     // -----------
-    Model buggleModel("res/buggle/Scaniverse_2023_11_02_124437.obj");
-    Model emmaModel("res/emma/Scaniverse_2023_11_02_101701.obj");
-    Model alienModel("res/alien/ReptileAlienCreature.obj");
-    Model bevModel("res/bev/Scaniverse_2023_11_02_124541.obj");
-    Model laModel("res/leah&stas/Scaniverse_2023_11_02_124805.obj");
-    Model sheenaModel("res/sheena/Scaniverse_2023_11_02_124634.obj");
-    Model cat("res/cat/12221_Cat_v1_l3.obj");
-
+    Model base("res/background/background.obj");
+    Model bus("res/Bus/Bus.obj");
     
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -127,19 +121,24 @@ int main()
         ourShader.setVec3("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
         ourShader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
-        //// render the loaded model
+        // render the base
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 0.01f, 0.01f, 0.01f ) );	// it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(0.0f, -2.0f, -85.0f));
+        model = glm::scale( model, glm::vec3( 3.0f, 3.0f, 3.0f ) );
+        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0.0f, 1.0f ,0.0f));
         ourShader.setMat4("model", model);
-        alienModel.Draw(ourShader);
+        base.Draw(ourShader);
 
+        // render the bus
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(3.0f, 0.0f, 3.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale( model, glm::vec3( 1.5f, 1.5f, 1.5f ) );	// it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(-5.0f, -2.2f, 0.0f));
+        model = glm::scale( model, glm::vec3( 1.2f, 1.2f, 1.2f ) );
+        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0.0f, 1.0f ,0.0f));
+        model = glm::rotate(model, glm::radians(35.0f), glm::vec3(1.0f, 0.0f ,0.0f));
+        model = glm::rotate(model, glm::radians(-40.0f), glm::vec3(1.0f, 0.0f ,1.0f));
         ourShader.setMat4("model", model);
-        sheenaModel.Draw(ourShader);
-
+        bus.Draw(ourShader);
+        
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
