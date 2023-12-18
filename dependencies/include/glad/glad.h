@@ -108,9 +108,9 @@ typedef void *GLeglImageOES;
 typedef char GLchar;
 typedef char GLcharARB;
 #ifdef __APPLE__
-typedef void *GLhandleARB;
+typedef void* GLhandleARB;
 #else
-typedef unsigned int GLhandleARB;
+typedef void* GLhandleARB;
 #endif
 typedef khronos_uint16_t GLhalf;
 typedef khronos_uint16_t GLhalfARB;
