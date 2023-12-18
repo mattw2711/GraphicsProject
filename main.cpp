@@ -88,8 +88,13 @@ int main()
 
     int numFireballs = 2;
     glm::vec3 fireballPositions[] = {
-        glm::vec3(4.0f, 0.0f, -24.0f), //fireball 1
-        glm::vec3(-12.0f, 0.0f, -34.0f) //fireball 2
+        glm::vec3(4.0f, -11.0f, -24.0f), //fireball 1
+        glm::vec3(-12.0f, -20.0f, -34.0f) //fireball 2
+    };
+
+    float fireballDirections[] = {
+        0.0f,
+        0.0f
     };
 
     // shader configuration
@@ -103,6 +108,20 @@ int main()
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        // Update fireball positions
+        for (int j = 0; j < numFireballs; j++) {
+            float direction = 0.08f;
+            if(fireballPositions[j].y > 5.0f && fireballDirections[j] == 0.0f)
+                fireballDirections[j] = 180.0f;
+            else if(fireballPositions[j].y < -10.0f && fireballDirections[j] == 180.0f)
+                fireballDirections[j] = 0.0f;
+
+            if(fireballDirections[j] == 180.0f)
+                fireballPositions[j].y += (-direction);
+            else
+                fireballPositions[j].y += direction;
+        }
 
         // input
         processInput(window);
@@ -139,7 +158,7 @@ int main()
         objectShader.setFloat("pointLights[1].quadratic", 0.032f);
         // point light 3
         objectShader.setVec3("pointLights[2].position", pointLightPositions[2]);
-        objectShader.setVec3("pointLights[2].ambient", 0.5f, 0.5f, 0.5f);
+        objectShader.setVec3("pointLights[2].ambient", 1.0f, 1.0f, 1.0f);
         objectShader.setVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
         objectShader.setVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
         objectShader.setFloat("pointLights[2].constant", 1.0f);
@@ -155,9 +174,9 @@ int main()
         objectShader.setFloat("pointLights[3].quadratic", 0.032f);
         // point light 4 - volcano
         objectShader.setVec3("pointLights[4].position", pointLightPositions[4]);
-        objectShader.setVec3("pointLights[4].ambient", 15.0f, 15.0f, 15.0f);
-        objectShader.setVec3("pointLights[4].diffuse", 5.0f, 5.0f, 5.0f);
-        objectShader.setVec3("pointLights[4].specular", 3.0f, 3.0f, 3.0f);
+        objectShader.setVec3("pointLights[4].ambient", 10.0f, 15.0f, 10.0f);
+        objectShader.setVec3("pointLights[4].diffuse", 2.0f, 5.0f, 2.0f);
+        objectShader.setVec3("pointLights[4].specular", 1.0f, 3.0f, 1.0f);
         objectShader.setFloat("pointLights[4].constant", 0.03f);
         objectShader.setFloat("pointLights[4].linear", 0.2f);
         objectShader.setFloat("pointLights[4].quadratic", 0.2f);
@@ -218,6 +237,7 @@ int main()
             // draw the fire light
             objectShader.setVec3("pointLights[" + std::to_string(i) + "].position", fireballPositions[j]);
             objectShader.setVec3("pointLights[" + std::to_string(i) + "].ambient", 0.3f, 0.3f, 0.3f);
+            objectShader.setVec3("pointLights[" + std::to_string(i) + "].diffuse", 0.8f, 0.8f, 0.8f);
             objectShader.setVec3("pointLights[" + std::to_string(i) + "].specular", 0.5f, 0.5f, 0.5f);
             objectShader.setFloat("pointLights[" + std::to_string(i) + "].constant", 0.03f);
             objectShader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.2f);
@@ -228,7 +248,8 @@ int main()
             // render the fire objects
             model = glm::mat4(1.0f);
             model = glm::translate(model, fireballPositions[j]);
-            model = glm::scale( model, glm::vec3(1.2f) );
+            model = glm::scale( model, glm::vec3(0.7f) );
+            model = glm::rotate(model, glm::radians(fireballDirections[j]), glm::vec3(1.0f, 0.0f, 0.0f));
             objectShader.setMat4("model", model);
             fire.Draw(objectShader);
         }
