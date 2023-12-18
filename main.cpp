@@ -210,28 +210,25 @@ int main()
         objectShader.setMat4("model", model);
         spire.Draw(objectShader);
 
-        for(unsigned int i = 0; i < (sizeof(fireballPositions)/sizeof(fireballPositions[0])); i++){
-            // draw the fire light
-            objectShader.setVec3("fireballPositions[i].position", fireballPositions[i]);
-            objectShader.setVec3("fireballPositions[i].ambient", 5.0f, 5.0f, 5.0f);
-            objectShader.setVec3("fireballPositions[i].specular", 0.5f, 0.5f, 0.5f);
-            objectShader.setFloat("fireballPositions[i].constant", 0.03f);
-            objectShader.setFloat("fireballPositions[i].linear", 0.2f);
-            objectShader.setFloat("fireballPositions[i].quadratic", 0.2f);
-            // render the fires
-            
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, fireballPositions[i]);
-            model = glm::scale( model, glm::vec3( 1.2f, 1.2f, 1.2f ) );
-            objectShader.setMat4("model", model);
-            fire.Draw(objectShader);
-
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, fireballPositions[i]);
-            model = glm::scale(model, glm::vec3(0.5f));
-            objectShader.setMat4("model", model);
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        // draw the fire light
+        objectShader.setVec3("pointLights[5].position", fireballPositions[0]);
+        objectShader.setVec3("pointLights[5].ambient", 5.0f, 5.0f, 5.0f);
+        objectShader.setVec3("pointLights[5].specular", 0.5f, 0.5f, 0.5f);
+        objectShader.setFloat("pointLights[5].constant", 0.03f);
+        objectShader.setFloat("pointLights[5].linear", 0.2f);
+        objectShader.setFloat("pointLights[5].quadratic", 0.2f);
+        // render the fires
+        
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, fireballPositions[0]);
+        model = glm::scale( model, glm::vec3( 1.2f, 1.2f, 1.2f ) );
+        objectShader.setMat4("model", model);
+        fire.Draw(objectShader);
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, fireballPositions[0]);
+        model = glm::scale(model, glm::vec3(0.5f));
+        objectShader.setMat4("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
 
         for (unsigned int i = 0; i < (sizeof(pointLightPositions)/sizeof(pointLightPositions[0]) - 1); i++)
         {
