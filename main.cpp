@@ -76,6 +76,7 @@ int main()
     Model spire("res/spire/spire.obj");
     Model fire("res/fire/fire.obj");
 
+    int numPointLights = 5;
     // positions of the point lights
     glm::vec3 pointLightPositions[] = {
         glm::vec3(-5.0f, -1.2f, 0.0f), //bus1
@@ -84,8 +85,11 @@ int main()
         glm::vec3(-30.0f, -1.0f, -20.0f), //bus3
         glm::vec3(7.0f, 20.0f, -83.0f), //volcano
     };
+
+    int numFireballs = 2;
     glm::vec3 fireballPositions[] = {
-        glm::vec3(4.0f, 0.0f, -24.0f) //fireball 1
+        glm::vec3(4.0f, 0.0f, -24.0f), //fireball 1
+        glm::vec3(-12.0f, 0.0f, -34.0f) //fireball 2
     };
 
     // shader configuration
@@ -210,26 +214,26 @@ int main()
         objectShader.setMat4("model", model);
         spire.Draw(objectShader);
 
-        // draw the fire light
-        objectShader.setVec3("pointLights[5].position", fireballPositions[0]);
-        objectShader.setVec3("pointLights[5].ambient", 5.0f, 5.0f, 5.0f);
-        objectShader.setVec3("pointLights[5].specular", 0.5f, 0.5f, 0.5f);
-        objectShader.setFloat("pointLights[5].constant", 0.03f);
-        objectShader.setFloat("pointLights[5].linear", 0.2f);
-        objectShader.setFloat("pointLights[5].quadratic", 0.2f);
-        // render the fires
-        
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, fireballPositions[0]);
-        model = glm::scale( model, glm::vec3( 1.2f, 1.2f, 1.2f ) );
-        objectShader.setMat4("model", model);
-        fire.Draw(objectShader);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, fireballPositions[0]);
-        model = glm::scale(model, glm::vec3(0.5f));
-        objectShader.setMat4("model", model);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        for(int i = numPointLights, j = 0; j < numFireballs; i++, j++) {
+            // draw the fire light
+            objectShader.setVec3("pointLights[" + std::to_string(i) + "].position", fireballPositions[j]);
+            objectShader.setVec3("pointLights[" + std::to_string(i) + "].ambient", 0.3f, 0.3f, 0.3f);
+            objectShader.setVec3("pointLights[" + std::to_string(i) + "].specular", 0.5f, 0.5f, 0.5f);
+            objectShader.setFloat("pointLights[" + std::to_string(i) + "].constant", 0.03f);
+            objectShader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.2f);
+            objectShader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.2f);
+            lightingShader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+            
+            // render the fire objects
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, fireballPositions[j]);
+            model = glm::scale( model, glm::vec3(1.2f) );
+            objectShader.setMat4("model", model);
+            fire.Draw(objectShader);
+        }
 
+        // Draw objects lights
         for (unsigned int i = 0; i < (sizeof(pointLightPositions)/sizeof(pointLightPositions[0]) - 1); i++)
         {
             model = glm::mat4(1.0f);
