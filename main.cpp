@@ -18,7 +18,7 @@ void processInput(GLFWwindow *window);
 void resetParticles();
 
 // set up particle variables
-const int maxParticles = 500;
+const int maxParticles = 1000;
 glm::vec3 volcanoParticles[maxParticles];
 glm::vec3 particleVelocities[maxParticles];
 glm::vec3 particleSizes[maxParticles];
@@ -87,6 +87,7 @@ int main()
     Model truck("res/Truck/Truck.obj");
     Model sign("res/sign/sign.obj");
     Model rubble("res/rubble/rubble.obj");
+    Model ball("res/ball/ball.obj");
 
 
     // positions of the point lights
@@ -381,7 +382,7 @@ int main()
             model = glm::translate(model, volcanoParticles[i]);
             model = glm::scale( model, particleSizes[i] * glm::vec3( 1.0f, 1.0f, 1.0f ));
             objectShader.setMat4("model", model);
-            fire.Draw(objectShader);
+            ball.Draw(objectShader);
 
             // update the volcano particles
             volcanoParticles[i] += particleVelocities[i];
@@ -389,7 +390,7 @@ int main()
 
         bool allParticlesAtTop = true;
         for (int i = 0; i < maxParticles; ++i) {
-            if (volcanoParticles[i].y < 200.0f) {
+            if (volcanoParticles[i].y < 150.0f) {
             allParticlesAtTop = false;
             break;  // No need to check further, at least one particle is not at the top
         }
@@ -502,16 +503,16 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 void resetParticles(){
     // Initialize volcano particles
     for (int i = 0; i < maxParticles; ++i) {
-        volcanoParticles[i] = glm::vec3(7.0f, 20.0f, -83.0f);  // Initial position of particles
+        volcanoParticles[i] = glm::vec3(7.0f, 21.0f, -83.0f);  // Initial position of particles
 
         // Generate random velocity values between 1.0 and 0.01
         float randomVelocityX = (((float)rand() / RAND_MAX) * (0.6f - 0.02f) + 0.02f) * (rand() % 2 ? 1 : -1);
-        float randomVelocityY = ((float)rand() / RAND_MAX) * (0.8f - 0.2f) + 0.2f;
+        float randomVelocityY = ((float)rand() / RAND_MAX) * (1.2f - 0.2f) + 0.2f;
         float randomVelocityZ = (((float)rand() / RAND_MAX) * (0.4f - 0.2f) + 0.2f) * (rand() % 2 ? 1 : -1);
 
         particleVelocities[i] = glm::vec3(randomVelocityX, randomVelocityY, randomVelocityZ); // Initial velocity of particles
 
-        float randomSize = ((float)rand() / RAND_MAX) * (1.0f - 0.01f) + 0.01f;
+        float randomSize = ((float)rand() / RAND_MAX) * (5.0f - 0.01f) + 0.01f;
         particleSizes[i] = glm::vec3(randomSize);
     }
 }

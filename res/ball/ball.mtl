@@ -1,0 +1,12 @@
+# Apple ModelI/O MTL File: Bus.mtl
+
+newmtl main
+map_Kd ballcolor.png
+Ka 0 0 0 
+Kd 1 1 1
+Ks 0
+d 1.0
+Ns 0.0
+illum 0
+map_metallic ballmetallic.png
+map_roughness ballroughness.png
