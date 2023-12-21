@@ -17,7 +17,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void resetParticles();
 
-const int maxParticles = 1000;
+// set up particle variables
+const int maxParticles = 500;
 glm::vec3 volcanoParticles[maxParticles];
 glm::vec3 particleVelocities[maxParticles];
 glm::vec3 particleSizes[maxParticles];
@@ -83,44 +84,51 @@ int main()
     Model spire("res/spire/spire.obj");
     Model fire("res/fire/fire.obj");
     Model luas("res/luas/luas.obj");
+    Model truck("res/Truck/Truck.obj");
+    Model sign("res/sign/sign.obj");
+    Model rubble("res/rubble/rubble.obj");
+
 
     // positions of the point lights
     glm::vec3 pointLightPositions[] = {
         glm::vec3(7.0f, 20.0f, -83.0f), //volcano
         glm::vec3(-5.0f, -1.2f, 0.0f), //bus1
-        glm::vec3(30.0f, -1.0f, -50.0f), //bus2
-        glm::vec3(20.0f, 0.0f, -15.0f), //spire
+        glm::vec3(30.0f, -1.0f, -25.0f), //bus2
+        glm::vec3(30.0f, 0.0f, -50.0f), //spire
         glm::vec3(-30.0f, -1.0f, -20.0f), //bus3
-        glm::vec3(45.0f, 0.0f, -40.0f), //luas1
-        glm::vec3(-30.0f, 0.0f, -5.0f) //luas2
+        glm::vec3(45.0f, 0.0f, -10.0f), //luas1
+        glm::vec3(-30.0f, 0.0f, -5.0f), //luas2
+        glm::vec3(-20.0f, -1.0f, -50.0f) //truck
     };
-
-    resetParticles();
-    
-    int numFireballs = 0;
 
     glm::vec3 fireballPositions[] = {
         glm::vec3(4.0f, -11.0f, -24.0f), //fireball 0
         glm::vec3(-12.0f, -20.0f, -34.0f), //fireball 1
-        glm::vec3(-40.0f, -40.0f, -7.0f), //fireball 2
+        glm::vec3(-50.0f, -40.0f, -10.0f), //fireball 2
         glm::vec3(57.0f, -70.0f, -15.0f), //fireball 3
         glm::vec3(30.0f, -60.0f, -60.0f), //fireball 4
         glm::vec3(23.0f, -4.0f, 2.0f), //fireball 5
     };
 
-    int numPointLights = sizeof(pointLightPositions)/sizeof(pointLightPositions[0]);
-    numFireballs = sizeof(fireballPositions)/sizeof(fireballPositions[0]);
+    glm::vec3 rubblePositions[] = {
+        glm::vec3(-4.0f, -2.0f, -27.0f),
+        glm::vec3(60, -1.0f, -32.0f),
+        glm::vec3(-50, -1.0f, -50.0f),
+    };
 
-    float fireballDirections[numFireballs];
-    std::fill_n(fireballDirections, numFireballs, 0.0f);
+    float rubbleSizes[] = {
+        0.6f,
+        1.5f,
+        2.0f,
+    };
 
     float fireballSizes[] = {
         0.3f,
         0.7f,
-        1.0f,
+        2.0f,
         0.5f,
         1.5f,
-        2.0f
+        2.5f
     };
 
     float fireballSpeeds[] = {
@@ -131,6 +139,14 @@ int main()
         0.03f,
         0.08f
     };
+
+    resetParticles();
+    int numFireballs = 0;
+    float animationTime = 0.0f;
+    int numPointLights = sizeof(pointLightPositions)/sizeof(pointLightPositions[0]);
+    numFireballs = sizeof(fireballPositions)/sizeof(fireballPositions[0]);
+    float fireballDirections[numFireballs];
+    std::fill_n(fireballDirections, numFireballs, 0.0f);
 
     // shader configuration
     objectShader.use();
@@ -143,6 +159,7 @@ int main()
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        animationTime += deltaTime;
 
        // Update fireball positions
         for (int j = 0; j < numFireballs; j++) {
@@ -210,7 +227,7 @@ int main()
         objectShader.setFloat("pointLights[2].quadratic", 0.032f);
         // point light 3
         objectShader.setVec3("pointLights[3].position", pointLightPositions[3]);
-        objectShader.setVec3("pointLights[3].ambient", 0.5f, 0.5f, 1.0f);
+        objectShader.setVec3("pointLights[3].ambient", 1.5f, 1.5f, 1.5f);
         objectShader.setVec3("pointLights[3].diffuse", 0.8f, 0.8f, 1.0f);
         objectShader.setVec3("pointLights[3].specular", 1.0f, 1.0f, 1.5f);
         objectShader.setFloat("pointLights[3].constant", 1.0f);
@@ -240,6 +257,14 @@ int main()
         objectShader.setFloat("pointLights[6].constant", 1.0f);
         objectShader.setFloat("pointLights[6].linear", 0.09f);
         objectShader.setFloat("pointLights[6].quadratic", 0.032f);
+        // point light 7
+        objectShader.setVec3("pointLights[7].position", pointLightPositions[7]);
+        objectShader.setVec3("pointLights[7].ambient", 0.7f, 0.8f, 0.8f);
+        objectShader.setVec3("pointLights[7].diffuse", 0.8f, 0.8f, 0.8f);
+        objectShader.setVec3("pointLights[7].specular", 1.0f, 1.0f, 1.0f);
+        objectShader.setFloat("pointLights[7].constant", 1.0f);
+        objectShader.setFloat("pointLights[7].linear", 0.09f);
+        objectShader.setFloat("pointLights[7].quadratic", 0.032f);
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -267,7 +292,7 @@ int main()
 
         // render the bus2
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(30.0f, -1.5f, -50.0f));
+        model = glm::translate(model, glm::vec3(30.0f, -1.5f, -25.0f));
         model = glm::scale( model, glm::vec3( 1.2f, 1.2f, 1.2f ) );
         model = glm::rotate(model, glm::radians(50.0f), glm::vec3(0.0f, 1.0f ,0.0f));
         model = glm::rotate(model, glm::radians(135.0f), glm::vec3(1.0f, 0.0f ,0.0f));
@@ -287,7 +312,7 @@ int main()
 
         // render the luas1
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(45.0f, -2.5f, -40.0f));
+        model = glm::translate(model, glm::vec3(45.0f, -2.5f, -10.0f));
         model = glm::scale( model, glm::vec3( 3.0f, 3.0f, 3.0f ) );
         model = glm::rotate(model, glm::radians(50.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(190.0f), glm::vec3(0.0f, 0.1f, 0.0f));
@@ -307,17 +332,54 @@ int main()
 
         // render the spire
         model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(20.0f, -12.5f, -20.0f));
-        model = glm::scale( model, glm::vec3( 10.0f, 10.0f, 10.0f ) );
-        model = glm::rotate(model, glm::radians(334.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::translate(model, glm::vec3(25.0f, -22.5f, -55.0f));
+        model = glm::scale( model, glm::vec3( 20.0f, 20.0f, 20.0f ) );
+        model = glm::rotate(model, glm::radians(354.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         objectShader.setMat4("model", model);
         spire.Draw(objectShader);
+
+        // render the truck
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(-20.0f, -2.0f, -50.0f));
+        model = glm::scale( model, glm::vec3( 0.4f, 0.4f, 0.4f ) );
+        model = glm::rotate(model, glm::radians(15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        objectShader.setMat4("model", model);
+        truck.Draw(objectShader);
+
+        // render the sign
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(8.0f, -2.5f, -7.0f));
+        model = glm::scale( model, glm::vec3( 0.2f, 0.2f, 0.2f ) );
+        model = glm::rotate(model, glm::radians(165.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        objectShader.setMat4("model", model);
+        sign.Draw(objectShader);
+
+        for(int i = 0; i < sizeof(rubblePositions)/sizeof(rubblePositions[0]); i++) {
+            float frequency = 2.0f + i * 0.2f;  // Adjust as needed
+            float phase = i * 0.5f;  // Adjust as needed
+            float rotationX = i * 5.0f;  // Adjust as needed
+            float rotationZ = i * 10.0f;  // Adjust as needed
+
+            // Calculate the vertical offset using a sine function with variation
+            float yOffset = sin(animationTime * frequency + phase) * 0.01f;
+
+            // Update the y-value of the rubble position
+            rubblePositions[i].y += yOffset;
+            // render the rubble
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, rubblePositions[i]);
+            model = glm::scale( model, glm::vec3(rubbleSizes[i]) );
+            model = glm::rotate(model, glm::radians(rotationX), glm::vec3(1.0f, 0.0f, 0.0f));
+            model = glm::rotate(model, glm::radians(rotationZ), glm::vec3(0.0f, 0.0f, 1.0f));
+            objectShader.setMat4("model", model);
+            rubble.Draw(objectShader);
+        }
 
         for(int i = 0; i < maxParticles; i++) {
             // render the volcano particles
             model = glm::mat4(1.0f);
             model = glm::translate(model, volcanoParticles[i]);
-            model = glm::scale( model, glm::vec3( 0.3f, 0.3f, 0.3f ) );
+            model = glm::scale( model, particleSizes[i] * glm::vec3( 1.0f, 1.0f, 1.0f ));
             objectShader.setMat4("model", model);
             fire.Draw(objectShader);
 
@@ -386,7 +448,8 @@ int main()
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
+// process all input: query GLFW whether relevant keys 
+//are pressed/released this frame and react accordingly
 void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -442,13 +505,13 @@ void resetParticles(){
         volcanoParticles[i] = glm::vec3(7.0f, 20.0f, -83.0f);  // Initial position of particles
 
         // Generate random velocity values between 1.0 and 0.01
-        float randomVelocityX = (((float)rand() / RAND_MAX) * (0.5f - 0.01f) + 0.01f) * (rand() % 2 ? 1 : -1);
+        float randomVelocityX = (((float)rand() / RAND_MAX) * (0.6f - 0.02f) + 0.02f) * (rand() % 2 ? 1 : -1);
         float randomVelocityY = ((float)rand() / RAND_MAX) * (0.8f - 0.2f) + 0.2f;
-        float randomVelocityZ = (((float)rand() / RAND_MAX) * (0.5f - 0.01f) + 0.01f) * (rand() % 2 ? 1 : -1);
+        float randomVelocityZ = (((float)rand() / RAND_MAX) * (0.4f - 0.2f) + 0.2f) * (rand() % 2 ? 1 : -1);
 
-        particleVelocities[i] = glm::vec3(randomVelocityX, randomVelocityY, randomVelocityZ); // Initial velocity of particles§
+        particleVelocities[i] = glm::vec3(randomVelocityX, randomVelocityY, randomVelocityZ); // Initial velocity of particles
 
-        float randomSize = ((float)rand() / RAND_MAX) * (3.0f - 0.5f) + 0.5f;
+        float randomSize = ((float)rand() / RAND_MAX) * (1.0f - 0.01f) + 0.01f;
         particleSizes[i] = glm::vec3(randomSize);
     }
 }

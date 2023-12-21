@@ -1,0 +1,13 @@
+# Apple ModelI/O MTL File: background.mtl
+
+newmtl main
+map_Kd signcolor.png
+Ka 0 0 0 
+Kd 1 1 1
+Ks 0
+d 1.0
+Ns 0.0
+illum 0
+map_metallic signmetallic.png
+map_roughness signroughness.png
+

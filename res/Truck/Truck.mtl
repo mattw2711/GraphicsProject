@@ -1,0 +1,13 @@
+# Apple ModelI/O MTL File: Truck.mtl
+
+newmtl main
+map_Kd truckcolor.png
+Kd 1 1 1
+Ka 0 0 0
+Ks 0
+d 1.0
+Ns 1.0
+illum 0
+map_metallic truckmetallic.png
+map_roughness truckroughness.png
+
