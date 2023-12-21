@@ -15,6 +15,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void resetParticles();
+
+const int maxParticles = 1000;
+glm::vec3 volcanoParticles[maxParticles];
+glm::vec3 particleVelocities[maxParticles];
+glm::vec3 particleSizes[maxParticles];
 
 // settings
 const unsigned int SCR_WIDTH = 1600;
@@ -89,16 +95,17 @@ int main()
         glm::vec3(-30.0f, 0.0f, -5.0f) //luas2
     };
 
+    resetParticles();
     
     int numFireballs = 0;
 
     glm::vec3 fireballPositions[] = {
-        glm::vec3(4.0f, -11.0f, -24.0f), //fireball 1
-        glm::vec3(-12.0f, -20.0f, -34.0f), //fireball 2
-        glm::vec3(-40.0f, -40.0f, -7.0f), //fireball 3
-        glm::vec3(57.0f, -70.0f, -15.0f), //fireball 4
-        glm::vec3(30.0f, -60.0f, -60.0f), //fireball 5
-        glm::vec3(18.0f, -4.0f, -6.0f), //fireball 5
+        glm::vec3(4.0f, -11.0f, -24.0f), //fireball 0
+        glm::vec3(-12.0f, -20.0f, -34.0f), //fireball 1
+        glm::vec3(-40.0f, -40.0f, -7.0f), //fireball 2
+        glm::vec3(57.0f, -70.0f, -15.0f), //fireball 3
+        glm::vec3(30.0f, -60.0f, -60.0f), //fireball 4
+        glm::vec3(23.0f, -4.0f, 2.0f), //fireball 5
     };
 
     int numPointLights = sizeof(pointLightPositions)/sizeof(pointLightPositions[0]);
@@ -113,6 +120,7 @@ int main()
         1.0f,
         0.5f,
         1.5f,
+        2.0f
     };
 
     float fireballSpeeds[] = {
@@ -121,6 +129,7 @@ int main()
         0.04f,
         0.06f,
         0.03f,
+        0.08f
     };
 
     // shader configuration
@@ -135,18 +144,27 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Update fireball positions
+       // Update fireball positions
         for (int j = 0; j < numFireballs; j++) {
             float speed = fireballSpeeds[j];
-            if(fireballPositions[j].y > 5.0f && fireballDirections[j] == 0.0f)
-                fireballDirections[j] = 180.0f;
-            else if(fireballPositions[j].y < -10.0f && fireballDirections[j] == 180.0f)
-                fireballDirections[j] = 0.0f;
+            float acceleration = 0.1f;  // Adjust this value for acceleration
+            float deceleration = 0.2f;  // Adjust this value for deceleration
 
-            if(fireballDirections[j] == 180.0f)
+            // Check conditions for changing direction
+            if (fireballPositions[j].y > 7.0f && fireballDirections[j] == 0.0f) {
+                fireballDirections[j] = 180.0f;
+                speed += acceleration;  // Accelerate when turning around
+            } else if (fireballPositions[j].y < -10.0f && fireballDirections[j] == 180.0f) {
+                fireballDirections[j] = 0.0f;
+                speed -= deceleration;  // Decelerate when turning around
+            }
+
+            // Update fireball position based on direction
+            if (fireballDirections[j] == 180.0f) {
                 fireballPositions[j].y += (-speed);
-            else
+            } else {
                 fireballPositions[j].y += speed;
+            }
         }
 
         // input
@@ -214,7 +232,7 @@ int main()
         objectShader.setFloat("pointLights[5].constant", 1.0f);
         objectShader.setFloat("pointLights[5].linear", 0.09f);
         objectShader.setFloat("pointLights[5].quadratic", 0.032f);
-        // point light 5
+        // point light 6
         objectShader.setVec3("pointLights[6].position", pointLightPositions[6]);
         objectShader.setVec3("pointLights[6].ambient", 0.7f, 0.8f, 0.8f);
         objectShader.setVec3("pointLights[6].diffuse", 0.8f, 0.8f, 0.8f);
@@ -291,10 +309,33 @@ int main()
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(20.0f, -12.5f, -20.0f));
         model = glm::scale( model, glm::vec3( 10.0f, 10.0f, 10.0f ) );
-        model = glm::rotate(model, glm::radians(266.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(334.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         objectShader.setMat4("model", model);
         spire.Draw(objectShader);
 
+        for(int i = 0; i < maxParticles; i++) {
+            // render the volcano particles
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, volcanoParticles[i]);
+            model = glm::scale( model, glm::vec3( 0.3f, 0.3f, 0.3f ) );
+            objectShader.setMat4("model", model);
+            fire.Draw(objectShader);
+
+            // update the volcano particles
+            volcanoParticles[i] += particleVelocities[i];
+        }
+
+        bool allParticlesAtTop = true;
+        for (int i = 0; i < maxParticles; ++i) {
+            if (volcanoParticles[i].y < 200.0f) {
+            allParticlesAtTop = false;
+            break;  // No need to check further, at least one particle is not at the top
+        }
+        }
+
+        if(allParticlesAtTop){
+            resetParticles();
+        }
         
         for(int i = numPointLights, j = 0; j < numFireballs; i++, j++) {
             // draw the fire light
@@ -393,4 +434,21 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
+}
+
+void resetParticles(){
+    // Initialize volcano particles
+    for (int i = 0; i < maxParticles; ++i) {
+        volcanoParticles[i] = glm::vec3(7.0f, 20.0f, -83.0f);  // Initial position of particles
+
+        // Generate random velocity values between 1.0 and 0.01
+        float randomVelocityX = (((float)rand() / RAND_MAX) * (0.5f - 0.01f) + 0.01f) * (rand() % 2 ? 1 : -1);
+        float randomVelocityY = ((float)rand() / RAND_MAX) * (0.8f - 0.2f) + 0.2f;
+        float randomVelocityZ = (((float)rand() / RAND_MAX) * (0.5f - 0.01f) + 0.01f) * (rand() % 2 ? 1 : -1);
+
+        particleVelocities[i] = glm::vec3(randomVelocityX, randomVelocityY, randomVelocityZ); // Initial velocity of particles§
+
+        float randomSize = ((float)rand() / RAND_MAX) * (3.0f - 0.5f) + 0.5f;
+        particleSizes[i] = glm::vec3(randomSize);
+    }
 }
